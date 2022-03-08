@@ -39,9 +39,7 @@ const updateGoals = asyncHandler(async (req, res) => {
     throw new Error("Goal not found");
   }
 
-  const user = await User.findById(req.user.id);
-
-  if (!user) {
+  if (!req.user) {
     res.status(401);
     throw new Error("User not found");
   }
@@ -58,10 +56,10 @@ const updateGoals = asyncHandler(async (req, res) => {
   res.status(200).json(updatedGoal);
 });
 
-// @desc   Delete goals
-// @route  DELETE /api/goals/id
-// @access Private
-const deleteGoals = asyncHandler(async (req, res) => {
+// @desc    Delete goal
+// @route   DELETE /api/goals/:id
+// @access  Private
+const deleteGoal = asyncHandler(async (req, res) => {
   const goal = await Goal.findById(req.params.id);
 
   if (!goal) {
@@ -69,14 +67,14 @@ const deleteGoals = asyncHandler(async (req, res) => {
     throw new Error("Goal not found");
   }
 
-  const user = await User.findById(req.user.id);
-
-  if (!user) {
+  // Check for user
+  if (!req.user) {
     res.status(401);
     throw new Error("User not found");
   }
 
-  if (goal.user.toString() !== user.id) {
+  // Make sure the logged in user matches the goal user
+  if (goal.user.toString() !== req.user.id) {
     res.status(401);
     throw new Error("User not authorized");
   }
@@ -90,5 +88,5 @@ module.exports = {
   getGoals,
   setGoals,
   updateGoals,
-  deleteGoals,
+  deleteGoal,
 };
